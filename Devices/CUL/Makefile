@@ -135,9 +135,14 @@ usbprogram_v3: do_usbprogram
 
 
 do_usbprogram:
-	dfu-programmer $(MCU) erase || true
-	dfu-programmer $(MCU) flash $(TARGET).hex
-	dfu-programmer $(MCU) start
+	gpio -g mode 11 out
+	gpio -g write 11 0
+	sleep 1
+	gpio -g write 11 1
+	sleep 1
+	sudo dfu-programmer $(MCU) erase || true
+	sudo dfu-programmer $(MCU) flash $(TARGET).hex
+	sudo dfu-programmer $(MCU) start
 
 %.hex: %.elf
 	@echo $(MSG_FLASH) $@
