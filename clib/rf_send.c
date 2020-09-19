@@ -14,7 +14,7 @@
 #include "delay.h"
 #include "rf_send.h"
 #include "rf_receive.h"
-#include "led.h"
+//#include "led.h"
 #include "cc1100.h"
 #include "display.h"
 #include "fncollection.h"
@@ -107,7 +107,7 @@ sendraw(uint8_t *msg, uint8_t sync, uint8_t nbyte, uint8_t bitoff,
   }
   credit_10ms -= sum;
 
-  LED_ON();
+  //LED_ON();
 
 #if defined (HAS_IRRX) || defined (HAS_IRTX) // Block IR_Reception
   cli();
@@ -166,7 +166,7 @@ sendraw(uint8_t *msg, uint8_t sync, uint8_t nbyte, uint8_t bitoff,
     rf_moritz_init();
 #endif
 
-  LED_OFF();
+  //LED_OFF();
 }
 
 static int

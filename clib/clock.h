@@ -2,6 +2,7 @@
 #define _CLOCK_H_
 
 volatile extern uint32_t ticks;  // 1/125 sec resolution
+volatile extern uint16_t isrtimer;
 void gettime(char*);
 void Minute_Task(void);
 void get_timestamp(uint32_t *ts);

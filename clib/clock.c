@@ -3,10 +3,10 @@
 #include <avr/interrupt.h>
 
 #include "board.h"
-#include "led.h"
-#ifdef XLED
-#include "xled.h"
-#endif
+//#include "led.h"
+//#ifdef XLED
+//#include "xled.h"
+//#endif
 #include "fncollection.h"
 #include "clock.h"
 #include "display.h"
@@ -36,12 +36,15 @@ uint8_t ir_ticks_thrd = 0;
 #endif
 
 volatile uint32_t ticks;
+volatile uint16_t isrtimer;
 volatile uint8_t  clock_hsec;
 
 // count & compute in the interrupt, else long runnning tasks would block
 // a "minute" task too long
-ISR(TIMER0_COMPA_vect, ISR_BLOCK)
+//ISR(TIMER0_COMPA_vect, ISR_BLOCK)
+ISR(TIMER0_OVF_vect, ISR_BLOCK)
 {
+  isrtimer++;
 #ifdef HAS_IRTX     //IS IRTX defined ?
   if(! ir_send_data() ) {   //If IR-Sending is in progress, don't receive
 #ifdef HAS_IRRX  //IF also IRRX is define
@@ -134,16 +137,16 @@ Minute_Task(void)
   wdt_reset();
 
   // 125Hz
-#ifdef XLED
-  if ((ticks % 12) == 0) {
-    if ( xled_pattern & _BV(xled_pos++) ) {
-      LED_ON();
-    } else {
-      LED_OFF();
-    }
-  }
-  xled_pos &= 15;
-#endif
+//#ifdef XLED
+//  if ((ticks % 12) == 0) {
+//    if ( xled_pattern & _BV(xled_pos++) ) {
+//      LED_ON();
+//    } else {
+//      LED_OFF();
+//    }
+//  }
+//  xled_pos &= 15;
+//#endif
 #ifdef HAS_FHT_TF
   // iterate over all TFs
   for(uint8_t i = 0; i < FHT_TF_NUM; i++) {
@@ -176,10 +179,10 @@ Minute_Task(void)
     return;
   clock_hsec = 0;       // once per second from here on.
 
-#ifndef XLED
-  if(led_mode & 2)
-    LED_TOGGLE();
-#endif
+//#ifndef XLED
+//  if(led_mode & 2)
+//    LED_TOGGLE();
+//#endif
 
   if (credit_10ms < MAX_CREDIT) // 10ms/1s == 1% -> allowed talk-time without CD
     credit_10ms += 1;

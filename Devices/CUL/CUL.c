@@ -52,7 +52,7 @@
 
 struct cRGB led[255];
 uint8_t displaychange = 0, jumptobootloader = 0, watchdog = 0x00, display = 0xFF, led_position = 0, crc_active = 1, commandbyte = 0xFF,twdrbuffer, buffer_address,a7count = 0,count,bllevel = 31,newbllevel = 31,changeled,crc,i2cerror = 0, fanlevel= 254;
-uint16_t a0,a1,a2,a3,a4,a5,a7,a7avg,a7max,a7min,vcc,temp,rpm,fanspin,isrtimer,i2cbuffer = 0, watchi2c = 0;
+uint16_t a0,a1,a2,a3,a4,a5,a7,a7avg,a7max,a7min,vcc,temp,rpm,fanspin,i2cbuffer = 0, watchi2c = 0;
 uint16_t data_lcd_shpi397[] = {
     0x0ff, 0x1ff, 0x198, 0x106, 0x104, 0x101, 0x008, 0x110,
     0x021, 0x109, 0x030, 0x102, 0x031, 0x100, 0x040, 0x110,
@@ -352,9 +352,9 @@ ISR(PCINT0_vect) {
   if (bit_is_clear(PINB, PB4)) fanspin++;
 } // counting VENT_RPM
 
-ISR(TIMER0_OVF_vect) {
-  isrtimer++;
-} // reuse timer0 for counting VENT_RPM
+//ISR(TIMER0_OVF_vect) { ISR routine moved to clock.c
+  //isrtimer++;
+//} // reuse timer0 for counting VENT_RPM
 
 ISR(TWI_vect) {
 

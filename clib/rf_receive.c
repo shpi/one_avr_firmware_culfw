@@ -13,7 +13,7 @@
 #include "delay.h"
 #include "rf_send.h"
 #include "rf_receive.h"
-#include "led.h"
+//#include "led.h"
 #include "cc1100.h"
 #include "display.h"
 #include "clock.h"
@@ -493,7 +493,7 @@ RfAnalyze_Task(void)
   if(bucket_nrused == 0)
     return;
 
-  LED_ON();
+  //LED_ON();
 
   b = bucket_array + bucket_out;
 
@@ -665,7 +665,7 @@ RfAnalyze_Task(void)
   if(bucket_out == RCV_BUCKETS)
     bucket_out = 0;
 
-  LED_OFF();
+  //LED_OFF();
 
 #ifdef HAS_FHT_80b
   if(datatype == TYPE_FHT) {
