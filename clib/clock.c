@@ -31,10 +31,11 @@
 
 #if defined (HAS_IRRX) || defined (HAS_IRTX)
 #include "ir.h"
-uint8_t ir_ticks = 0;
+//uint8_t ir_ticks = 0;
 uint8_t ir_ticks_thrd = 0;
 #endif
 
++uint8_t ir_ticks = 0;
 volatile uint32_t ticks;
 volatile uint16_t isrtimer;
 volatile uint8_t  clock_hsec;
@@ -55,13 +56,12 @@ ISR(TIMER0_OVF_vect, ISR_BLOCK)
   ir_sample(); // call IR sample handler
 #endif
 
-#if defined (HAS_IRTX) || defined (HAS_IRRX)
   // if IRRX is compiled in, timer runs 125x faster ... 
-  if (++ir_ticks<125) 
+  if (++ir_ticks<250) 
     return;
     
   ir_ticks = 0;
-#endif
+
 
   // 125Hz
   ticks++; 

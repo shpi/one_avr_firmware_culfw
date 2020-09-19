@@ -9,7 +9,8 @@ spi_init(void)
   PRR0 &= ~_BV(PRSPI);
 #endif
   SPI_PORT |= _BV(SPI_SCLK);
-  SPI_DDR  |= (_BV(SPI_MOSI) | _BV(SPI_SCLK) | _BV(SPI_SS));
+  SPI_DDR  |= (_BV(SPI_MOSI) | _BV(SPI_SCLK));
+  SS_DDR |=  _BV(SPI_SS);
   SPI_DDR  &= ~_BV(SPI_MISO);
   
 #ifdef HAS_DOGM

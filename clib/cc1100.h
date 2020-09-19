@@ -8,7 +8,7 @@
 #define CC1100_H
 
 #include <avr/io.h>
-#include "led.h"
+//#include "led.h"
 
 void ccInitChip(uint8_t *cfg);
 void cc_factory_reset(void);

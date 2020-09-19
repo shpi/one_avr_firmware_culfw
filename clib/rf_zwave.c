@@ -240,7 +240,7 @@ rf_zwave_task(void)
   if(!bit_is_set( CC1100_IN_PORT, CC1100_IN_PIN ))
     return;
 
-  LED_ON();
+//  LED_ON();
   CC1100_ASSERT;
   cc1100_sendbyte( CC1100_READ_BURST | CC1100_RXFIFO );
   for(uint8_t i=0; i<8; i++) { // FIFO RX threshold is 8
@@ -337,13 +337,13 @@ rf_zwave_task(void)
     zccRX();
   }
 
-  LED_OFF();
+//  LED_OFF();
 }
 
 void
 zwave_doSend(uint8_t *msg, uint8_t hblen)
 {
-  LED_ON();
+//  LED_ON();
 
   if (zwave_drate == DRATE_9600) {
     cc1100_writeReg(CC1100_MDMCFG2, 0x14);       // No preamble, no manchaster,
@@ -396,7 +396,7 @@ zwave_doSend(uint8_t *msg, uint8_t hblen)
   }
 
   zccRX();
-  LED_OFF();
+//  LED_OFF();
 
   if(msg[5] & 0x40) {   // ackReq
     zwave_sStamp = ticks + 6; // 6/125 = 48ms

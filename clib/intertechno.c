@@ -17,7 +17,7 @@
 #include "delay.h"
 #include "rf_send.h"
 #include "rf_receive.h"
-#include "led.h"
+//#include "led.h"
 #include "cc1100.h"
 #include "display.h"
 #include "fncollection.h"
@@ -222,7 +222,7 @@ static void
 it_send (char *in) {	
 	  int8_t i, j, k;
 
-		LED_ON();
+//		LED_ON();
 
     #if defined (HAS_IRRX) || defined (HAS_IRTX) //Blockout IR_Reception for the moment
       cli(); 
@@ -320,7 +320,7 @@ it_send (char *in) {
       sei(); 
     #endif		  
 
-		LED_OFF();
+//		LED_OFF();
 	
 		DC('i');DC('s');
 		for(j = 1; j < sizeOfPackage; j++)  {

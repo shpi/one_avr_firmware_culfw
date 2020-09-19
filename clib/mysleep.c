@@ -7,7 +7,7 @@
 #include "display.h"
 #include "pcf8833.h"
 #include "joy.h"
-#include "led.h"
+//#include "led.h"
 #include "battery.h"
 #include "rf_receive.h"
 #include "cc1100.h"
@@ -31,7 +31,7 @@ void
 dosleep(void)
 {
   USB_ShutDown();
-  LED_OFF();
+//  LED_OFF();
   wdt_disable(); 
   joy_enable_interrupts();
   lcd_switch(0);

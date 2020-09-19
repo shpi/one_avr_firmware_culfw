@@ -41,7 +41,7 @@
 #include "delay.h"
 #include "rf_send.h"
 #include "rf_receive.h"
-#include "led.h"
+//#include "led.h"
 #include "cc1100.h"
 #include "display.h"
 #include "fncollection.h"
@@ -255,7 +255,7 @@ static void somfy_rts_send(char *in) {
 		airdata[i] = airdata[i] ^ airdata[i-1];
 	}
 
-	LED_ON();
+//	LED_ON();
 
 #if defined (HAS_IRRX) || defined (HAS_IRTX) // Blockout IR_Reception for the moment
 	cli();
@@ -327,7 +327,7 @@ static void somfy_rts_send(char *in) {
 	sei();
 #endif
 
-	LED_OFF();
+//	LED_OFF();
 
 	DC('Y');
 	DC('s');

@@ -20,7 +20,7 @@
 #include "delay.h"
 #include "belfox.h"
 #include "rf_receive.h"
-#include "led.h"
+//#include "led.h"
 #include "cc1100.h"
 
 #ifdef HAS_MORITZ
@@ -65,7 +65,7 @@ send_belfox(char *msg)
   // assert if length incorrect
   if (len != BELFOX_LEN) return;
   
-  LED_ON();
+ // LED_ON();
 
 #if defined (HAS_IRRX) || defined (HAS_IRTX) // Block IR_Reception
   cli();
@@ -110,7 +110,7 @@ send_belfox(char *msg)
     rf_moritz_init();
 #endif
 
-  LED_OFF();
+ // LED_OFF();
 }
 
 #endif

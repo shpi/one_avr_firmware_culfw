@@ -12,7 +12,7 @@
 
 #include "ir.h"
 #include "display.h"
-#include "led.h"
+//#include "led.h"
 
 #include "irmpconfig.h"
 #include "irsndconfig.h"
@@ -53,14 +53,14 @@ void ir_task( void ) {
 	  return;
      
      
-  LED_ON();
+//  LED_ON();
   DC('I');
   DH(irmp_data.protocol, 2);
   DH(irmp_data.address, 4);
   DH(irmp_data.command, 4);
   DH(irmp_data.flags, 2);
   DNL();
-  LED_OFF();
+//  LED_OFF();
 }
 
 void ir_sample( void ) {
