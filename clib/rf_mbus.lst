@@ -1,0 +1,910 @@
+   1               		.file	"rf_mbus.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.section	.text.halRfReadFifo,"ax",@progbits
+   9               	halRfReadFifo:
+  10 0000 A0E0      		ldi r26,0
+  11 0002 B0E0      		ldi r27,0
+  12 0004 E0E0      		ldi r30,lo8(gs(1f))
+  13 0006 F0E0      		ldi r31,hi8(gs(1f))
+  14 0008 0C94 0000 		jmp __prologue_saves__+((18 - 9) * 2)
+  15               	1:
+  16               	/* prologue: function */
+  17               	/* frame size = 0 */
+  18               	/* stack size = 9 */
+  19               	.L__stack_usage = 9
+  20 000c B82E      		mov r11,r24
+  21 000e C92E      		mov r12,r25
+  22 0010 D62E      		mov r13,r22
+  23 0012 7A01      		movw r14,r20
+  24 0014 8901      		movw r16,r18
+  25 0016 2898      		cbi 0x5,0
+  26 0018 8FEF      		ldi r24,lo8(-1)
+  27 001a 0E94 0000 		call cc1100_sendbyte
+  28 001e CB2D      		mov r28,r11
+  29 0020 DC2D      		mov r29,r12
+  30 0022 CE01      		movw r24,r28
+  31 0024 8D0D      		add r24,r13
+  32 0026 911D      		adc r25,__zero_reg__
+  33 0028 6C01      		movw r12,r24
+  34               	.L2:
+  35 002a CC15      		cp r28,r12
+  36 002c DD05      		cpc r29,r13
+  37 002e 01F0      		breq .L11
+  38 0030 80E0      		ldi r24,0
+  39 0032 0E94 0000 		call cc1100_sendbyte
+  40 0036 8993      		st Y+,r24
+  41 0038 00C0      		rjmp .L2
+  42               	.L11:
+  43 003a E114      		cp r14,__zero_reg__
+  44 003c F104      		cpc r15,__zero_reg__
+  45 003e 01F0      		breq .L5
+  46 0040 80E0      		ldi r24,0
+  47 0042 0E94 0000 		call cc1100_sendbyte
+  48 0046 F701      		movw r30,r14
+  49 0048 8083      		st Z,r24
+  50 004a 0115      		cp r16,__zero_reg__
+  51 004c 1105      		cpc r17,__zero_reg__
+  52 004e 01F0      		breq .L5
+  53 0050 80E0      		ldi r24,0
+  54 0052 0E94 0000 		call cc1100_sendbyte
+  55 0056 F801      		movw r30,r16
+  56 0058 8083      		st Z,r24
+  57               	.L5:
+  58 005a 289A      		sbi 0x5,0
+  59               	/* epilogue start */
+  60 005c CDB7      		in r28,__SP_L__
+  61 005e DEB7      		in r29,__SP_H__
+  62 0060 E9E0      		ldi r30, lo8(9)
+  63 0062 0C94 0000 		jmp __epilogue_restores__ + ((18 - 9) * 2)
+  65               		.section	.text.rf_mbus_on,"ax",@progbits
+  67               	rf_mbus_on:
+  68 0000 CF93      		push r28
+  69               	/* prologue: function */
+  70               	/* frame size = 0 */
+  71               	/* stack size = 1 */
+  72               	.L__stack_usage = 1
+  73 0002 8823      		tst r24
+  74 0004 01F0      		breq .L13
+  75               	.L16:
+  76 0006 1092 0000 		sts RXinfo+11,__zero_reg__
+  77 000a 86E3      		ldi r24,lo8(54)
+  78 000c 0E94 0000 		call ccStrobe
+  79 0010 00C0      		rjmp .L14
+  80               	.L13:
+  81 0012 85E3      		ldi r24,lo8(53)
+  82 0014 0E94 0000 		call cc1100_readReg
+  83 0018 8D30      		cpi r24,lo8(13)
+  84 001a 01F4      		brne .L16
+  85 001c C0E0      		ldi r28,0
+  86 001e 00C0      		rjmp .L15
+  87               	.L14:
+  88 0020 85E3      		ldi r24,lo8(53)
+  89 0022 0E94 0000 		call cc1100_readReg
+  90 0026 C82F      		mov r28,r24
+  91 0028 8130      		cpi r24,lo8(1)
+  92 002a 01F4      		brne .L14
+  93 002c 8BE3      		ldi r24,lo8(59)
+  94 002e 0E94 0000 		call ccStrobe
+  95 0032 8AE3      		ldi r24,lo8(58)
+  96 0034 0E94 0000 		call ccStrobe
+  97 0038 1092 0000 		sts RXinfo,__zero_reg__
+  98 003c 1092 0000 		sts RXinfo+1+1,__zero_reg__
+  99 0040 1092 0000 		sts RXinfo+1,__zero_reg__
+ 100 0044 1092 0000 		sts RXinfo+3+1,__zero_reg__
+ 101 0048 1092 0000 		sts RXinfo+3,__zero_reg__
+ 102 004c 80E0      		ldi r24,lo8(MBbytes)
+ 103 004e 90E0      		ldi r25,hi8(MBbytes)
+ 104 0050 9093 0000 		sts RXinfo+5+1,r25
+ 105 0054 8093 0000 		sts RXinfo+5,r24
+ 106 0058 1092 0000 		sts RXinfo+7,__zero_reg__
+ 107 005c C093 0000 		sts RXinfo+8,r28
+ 108 0060 1092 0000 		sts RXinfo+9,__zero_reg__
+ 109 0064 8091 0000 		lds r24,mbus_mode
+ 110 0068 8093 0000 		sts RXinfo+10,r24
+ 111 006c 60E0      		ldi r22,0
+ 112 006e 83E0      		ldi r24,lo8(3)
+ 113 0070 0E94 0000 		call cc1100_writeReg
+ 114 0074 62E0      		ldi r22,lo8(2)
+ 115 0076 88E0      		ldi r24,lo8(8)
+ 116 0078 0E94 0000 		call cc1100_writeReg
+ 117 007c 84E3      		ldi r24,lo8(52)
+ 118 007e 0E94 0000 		call ccStrobe
+ 119               	.L17:
+ 120 0082 85E3      		ldi r24,lo8(53)
+ 121 0084 0E94 0000 		call cc1100_readReg
+ 122 0088 8D30      		cpi r24,lo8(13)
+ 123 008a 01F4      		brne .L17
+ 124 008c 81E0      		ldi r24,lo8(1)
+ 125 008e 8093 0000 		sts RXinfo+11,r24
+ 126               	.L15:
+ 127 0092 8C2F      		mov r24,r28
+ 128               	/* epilogue start */
+ 129 0094 CF91      		pop r28
+ 130 0096 0895      		ret
+ 132               		.section	.text.rf_mbus_init,"ax",@progbits
+ 134               	rf_mbus_init:
+ 135 0000 0F93      		push r16
+ 136 0002 1F93      		push r17
+ 137 0004 CF93      		push r28
+ 138 0006 DF93      		push r29
+ 139               	/* prologue: function */
+ 140               	/* frame size = 0 */
+ 141               	/* stack size = 4 */
+ 142               	.L__stack_usage = 4
+ 143 0008 182F      		mov r17,r24
+ 144 000a 062F      		mov r16,r22
+ 145 000c 5398      		cbi 0xa,3
+ 146 000e 5298      		cbi 0xa,2
+ 147 0010 1092 0000 		sts mbus_mode,__zero_reg__
+ 148 0014 1092 0000 		sts radio_mode,__zero_reg__
+ 149 0018 EA98      		cbi 0x1d,2
+ 150 001a 209A      		sbi 0x4,0
+ 151 001c 289A      		sbi 0x5,0
+ 152 001e 8EE1      		ldi r24,lo8(30)
+ 153 0020 90E0      		ldi r25,0
+ 154 0022 0E94 0000 		call my_delay_us
+ 155 0026 2898      		cbi 0x5,0
+ 156 0028 8EE1      		ldi r24,lo8(30)
+ 157 002a 90E0      		ldi r25,0
+ 158 002c 0E94 0000 		call my_delay_us
+ 159 0030 289A      		sbi 0x5,0
+ 160 0032 8DE2      		ldi r24,lo8(45)
+ 161 0034 90E0      		ldi r25,0
+ 162 0036 0E94 0000 		call my_delay_us
+ 163 003a 80E3      		ldi r24,lo8(48)
+ 164 003c 0E94 0000 		call ccStrobe
+ 165 0040 84E6      		ldi r24,lo8(100)
+ 166 0042 90E0      		ldi r25,0
+ 167 0044 0E94 0000 		call my_delay_us
+ 168 0048 1130      		cpi r17,lo8(1)
+ 169 004a 01F0      		breq .L23
+ 170 004c 1230      		cpi r17,lo8(2)
+ 171 004e 01F0      		breq .+2
+ 172 0050 00C0      		rjmp .L21
+ 173 0052 C0E0      		ldi r28,lo8(tModeRfConfig)
+ 174 0054 D0E0      		ldi r29,hi8(tModeRfConfig)
+ 175 0056 00C0      		rjmp .L28
+ 176               	.L23:
+ 177 0058 C0E0      		ldi r28,lo8(sModeRfConfig)
+ 178 005a D0E0      		ldi r29,hi8(sModeRfConfig)
+ 179               	.L26:
+ 180 005c FE01      		movw r30,r28
+ 181               	/* #APP */
+ 182               	 ;  138 "../../clib/rf_mbus.c" 1
+ 183 005e 8491      		lpm r24, Z
+ 184               		
+ 185               	 ;  0 "" 2
+ 186               	/* #NOAPP */
+ 187 0060 8134      		cpi r24,lo8(65)
+ 188 0062 00F4      		brsh .L25
+ 189 0064 3196      		adiw r30,1
+ 190               	/* #APP */
+ 191               	 ;  140 "../../clib/rf_mbus.c" 1
+ 192 0066 6491      		lpm r22, Z
+ 193               		
+ 194               	 ;  0 "" 2
+ 195               	/* #NOAPP */
+ 196 0068 FE01      		movw r30,r28
+ 197               	/* #APP */
+ 198               	 ;  140 "../../clib/rf_mbus.c" 1
+ 199 006a 8491      		lpm r24, Z
+ 200               		
+ 201               	 ;  0 "" 2
+ 202               	/* #NOAPP */
+ 203 006c 0E94 0000 		call cc1100_writeReg
+ 204 0070 2296      		adiw r28,2
+ 205 0072 F0E0      		ldi r31,hi8(sModeRfConfig+200)
+ 206 0074 C030      		cpi r28,lo8(sModeRfConfig+200)
+ 207 0076 DF07      		cpc r29,r31
+ 208 0078 01F4      		brne .L26
+ 209 007a 00C0      		rjmp .L25
+ 210               	.L37:
+ 211 007c 3196      		adiw r30,1
+ 212               	/* #APP */
+ 213               	 ;  147 "../../clib/rf_mbus.c" 1
+ 214 007e 6491      		lpm r22, Z
+ 215               		
+ 216               	 ;  0 "" 2
+ 217               	/* #NOAPP */
+ 218 0080 FE01      		movw r30,r28
+ 219               	/* #APP */
+ 220               	 ;  147 "../../clib/rf_mbus.c" 1
+ 221 0082 8491      		lpm r24, Z
+ 222               		
+ 223               	 ;  0 "" 2
+ 224               	/* #NOAPP */
+ 225 0084 0E94 0000 		call cc1100_writeReg
+ 226 0088 2296      		adiw r28,2
+ 227 008a F0E0      		ldi r31,hi8(tModeRfConfig+200)
+ 228 008c C030      		cpi r28,lo8(tModeRfConfig+200)
+ 229 008e DF07      		cpc r29,r31
+ 230 0090 01F0      		breq .L27
+ 231               	.L28:
+ 232 0092 FE01      		movw r30,r28
+ 233               	/* #APP */
+ 234               	 ;  145 "../../clib/rf_mbus.c" 1
+ 235 0094 8491      		lpm r24, Z
+ 236               		
+ 237               	 ;  0 "" 2
+ 238               	/* #NOAPP */
+ 239 0096 8134      		cpi r24,lo8(65)
+ 240 0098 00F0      		brlo .L37
+ 241 009a 00C0      		rjmp .L27
+ 242               	.L25:
+ 243 009c 0130      		cpi r16,lo8(1)
+ 244 009e 01F0      		breq .L38
+ 245               	.L31:
+ 246 00a0 1093 0000 		sts mbus_mode,r17
+ 247 00a4 0093 0000 		sts radio_mode,r16
+ 248 00a8 83E3      		ldi r24,lo8(51)
+ 249 00aa 0E94 0000 		call ccStrobe
+ 250 00ae 8CE0      		ldi r24,lo8(12)
+ 251 00b0 E0E0      		ldi r30,lo8(RXinfo)
+ 252 00b2 F0E0      		ldi r31,hi8(RXinfo)
+ 253 00b4 DF01      		movw r26,r30
+ 254               		0:
+ 255 00b6 1D92      		st X+,__zero_reg__
+ 256 00b8 8A95      		dec r24
+ 257 00ba 01F4      		brne 0b
+ 258 00bc 86E0      		ldi r24,lo8(6)
+ 259 00be E0E0      		ldi r30,lo8(TXinfo)
+ 260 00c0 F0E0      		ldi r31,hi8(TXinfo)
+ 261 00c2 DF01      		movw r26,r30
+ 262               		0:
+ 263 00c4 1D92      		st X+,__zero_reg__
+ 264 00c6 8A95      		dec r24
+ 265 00c8 01F4      		brne 0b
+ 266 00ca 84E0      		ldi r24,lo8(4)
+ 267 00cc 0E94 0000 		call my_delay_ms
+ 268 00d0 00C0      		rjmp .L21
+ 269               	.L38:
+ 270 00d2 60E0      		ldi r22,0
+ 271 00d4 87E1      		ldi r24,lo8(23)
+ 272 00d6 0E94 0000 		call cc1100_writeReg
+ 273 00da 67E0      		ldi r22,lo8(7)
+ 274 00dc 83E0      		ldi r24,lo8(3)
+ 275 00de 0E94 0000 		call cc1100_writeReg
+ 276 00e2 64E5      		ldi r22,lo8(84)
+ 277 00e4 84E0      		ldi r24,lo8(4)
+ 278 00e6 0E94 0000 		call cc1100_writeReg
+ 279 00ea 66E7      		ldi r22,lo8(118)
+ 280 00ec 85E0      		ldi r24,lo8(5)
+ 281 00ee 00C0      		rjmp .L36
+ 282               	.L27:
+ 283 00f0 0130      		cpi r16,lo8(1)
+ 284 00f2 01F4      		brne .L31
+ 285 00f4 60E0      		ldi r22,0
+ 286 00f6 87E1      		ldi r24,lo8(23)
+ 287 00f8 0E94 0000 		call cc1100_writeReg
+ 288 00fc 67E0      		ldi r22,lo8(7)
+ 289 00fe 83E0      		ldi r24,lo8(3)
+ 290 0100 0E94 0000 		call cc1100_writeReg
+ 291 0104 64E5      		ldi r22,lo8(84)
+ 292 0106 84E0      		ldi r24,lo8(4)
+ 293 0108 0E94 0000 		call cc1100_writeReg
+ 294 010c 6DE3      		ldi r22,lo8(61)
+ 295 010e 85E0      		ldi r24,lo8(5)
+ 296 0110 0E94 0000 		call cc1100_writeReg
+ 297 0114 60E5      		ldi r22,lo8(80)
+ 298 0116 85E1      		ldi r24,lo8(21)
+ 299 0118 0E94 0000 		call cc1100_writeReg
+ 300 011c 6BE5      		ldi r22,lo8(91)
+ 301 011e 80E1      		ldi r24,lo8(16)
+ 302 0120 0E94 0000 		call cc1100_writeReg
+ 303 0124 68EF      		ldi r22,lo8(-8)
+ 304 0126 81E1      		ldi r24,lo8(17)
+ 305               	.L36:
+ 306 0128 0E94 0000 		call cc1100_writeReg
+ 307 012c 62E0      		ldi r22,lo8(2)
+ 308 012e 82E0      		ldi r24,lo8(2)
+ 309 0130 0E94 0000 		call cc1100_writeReg
+ 310 0134 6EE2      		ldi r22,lo8(46)
+ 311 0136 80E0      		ldi r24,0
+ 312 0138 0E94 0000 		call cc1100_writeReg
+ 313 013c 00C0      		rjmp .L31
+ 314               	.L21:
+ 315               	/* epilogue start */
+ 316 013e DF91      		pop r29
+ 317 0140 CF91      		pop r28
+ 318 0142 1F91      		pop r17
+ 319 0144 0F91      		pop r16
+ 320 0146 0895      		ret
+ 322               		.section	.text.halRfWriteFifo,"ax",@progbits
+ 323               	.global	halRfWriteFifo
+ 325               	halRfWriteFifo:
+ 326 0000 FF92      		push r15
+ 327 0002 0F93      		push r16
+ 328 0004 1F93      		push r17
+ 329 0006 CF93      		push r28
+ 330 0008 DF93      		push r29
+ 331               	/* prologue: function */
+ 332               	/* frame size = 0 */
+ 333               	/* stack size = 5 */
+ 334               	.L__stack_usage = 5
+ 335 000a F82E      		mov r15,r24
+ 336 000c 092F      		mov r16,r25
+ 337 000e 162F      		mov r17,r22
+ 338 0010 2898      		cbi 0x5,0
+ 339 0012 8FE7      		ldi r24,lo8(127)
+ 340 0014 0E94 0000 		call cc1100_sendbyte
+ 341 0018 CF2D      		mov r28,r15
+ 342 001a D02F      		mov r29,r16
+ 343 001c CE01      		movw r24,r28
+ 344 001e 810F      		add r24,r17
+ 345 0020 911D      		adc r25,__zero_reg__
+ 346 0022 8C01      		movw r16,r24
+ 347               	.L40:
+ 348 0024 C017      		cp r28,r16
+ 349 0026 D107      		cpc r29,r17
+ 350 0028 01F0      		breq .L42
+ 351 002a 8991      		ld r24,Y+
+ 352 002c 0E94 0000 		call cc1100_sendbyte
+ 353 0030 00C0      		rjmp .L40
+ 354               	.L42:
+ 355 0032 289A      		sbi 0x5,0
+ 356 0034 81E0      		ldi r24,lo8(1)
+ 357               	/* epilogue start */
+ 358 0036 CDB7      		in r28,__SP_L__
+ 359 0038 DEB7      		in r29,__SP_H__
+ 360 003a E5E0      		ldi r30, lo8(5)
+ 361 003c 0C94 0000 		jmp __epilogue_restores__ + ((18 - 5) * 2)
+ 363               		.section	.text.halRfGetTxStatus,"ax",@progbits
+ 364               	.global	halRfGetTxStatus
+ 366               	halRfGetTxStatus:
+ 367               	/* prologue: function */
+ 368               	/* frame size = 0 */
+ 369               	/* stack size = 0 */
+ 370               	.L__stack_usage = 0
+ 371 0000 8DE3      		ldi r24,lo8(61)
+ 372 0002 0E94 0000 		call ccStrobe
+ 373 0006 0895      		ret
+ 375               		.section	.text.rf_mbus_task,"ax",@progbits
+ 376               	.global	rf_mbus_task
+ 378               	rf_mbus_task:
+ 379 0000 A4E0      		ldi r26,lo8(4)
+ 380 0002 B0E0      		ldi r27,0
+ 381 0004 E0E0      		ldi r30,lo8(gs(1f))
+ 382 0006 F0E0      		ldi r31,hi8(gs(1f))
+ 383 0008 0C94 0000 		jmp __prologue_saves__+((18 - 3) * 2)
+ 384               	1:
+ 385               	/* prologue: function */
+ 386               	/* frame size = 4 */
+ 387               	/* stack size = 7 */
+ 388               	.L__stack_usage = 7
+ 389 000c 9091 0000 		lds r25,radio_mode
+ 390 0010 9230      		cpi r25,lo8(2)
+ 391 0012 01F0      		breq .+2
+ 392 0014 00C0      		rjmp .L44
+ 393 0016 8091 0000 		lds r24,mbus_mode
+ 394 001a 8823      		tst r24
+ 395 001c 01F4      		brne .+2
+ 396 001e 00C0      		rjmp .L44
+ 397 0020 8091 0000 		lds r24,RXinfo+11
+ 398 0024 8130      		cpi r24,lo8(1)
+ 399 0026 01F0      		breq .L47
+ 400 0028 00F0      		brlo .L48
+ 401 002a 8230      		cpi r24,lo8(2)
+ 402 002c 01F0      		breq .L49
+ 403 002e 8330      		cpi r24,lo8(3)
+ 404 0030 01F4      		brne .+2
+ 405 0032 00C0      		rjmp .L50
+ 406 0034 00C0      		rjmp .L46
+ 407               	.L48:
+ 408 0036 81E0      		ldi r24,lo8(1)
+ 409 0038 00C0      		rjmp .L82
+ 410               	.L47:
+ 411 003a 4A9B      		sbis 0x9,2
+ 412 003c 00C0      		rjmp .L46
+ 413 003e 9093 0000 		sts RXinfo+11,r25
+ 414 0042 00C0      		rjmp .L46
+ 415               	.L49:
+ 416 0044 4B9B      		sbis 0x9,3
+ 417 0046 00C0      		rjmp .L46
+ 418 0048 20E0      		ldi r18,0
+ 419 004a 30E0      		ldi r19,0
+ 420 004c 40E0      		ldi r20,0
+ 421 004e 50E0      		ldi r21,0
+ 422 0050 63E0      		ldi r22,lo8(3)
+ 423 0052 8091 0000 		lds r24,RXinfo+5
+ 424 0056 9091 0000 		lds r25,RXinfo+5+1
+ 425 005a 0E94 0000 		call halRfReadFifo
+ 426 005e 2091 0000 		lds r18,RXinfo+10
+ 427 0062 8091 0000 		lds r24,RXinfo+5
+ 428 0066 9091 0000 		lds r25,RXinfo+5+1
+ 429 006a 2130      		cpi r18,lo8(1)
+ 430 006c 01F4      		brne .L51
+ 431 006e BE01      		movw r22,r28
+ 432 0070 6F5F      		subi r22,-1
+ 433 0072 7F4F      		sbci r23,-1
+ 434 0074 0E94 0000 		call manchDecode
+ 435 0078 8111      		cpse r24,__zero_reg__
+ 436 007a 00C0      		rjmp .L61
+ 437 007c 8981      		ldd r24,Y+1
+ 438 007e 8093 0000 		sts RXinfo,r24
+ 439 0082 0E94 0000 		call packetSize
+ 440 0086 AC01      		movw r20,r24
+ 441 0088 60E0      		ldi r22,0
+ 442 008a 81E0      		ldi r24,lo8(1)
+ 443 008c 00C0      		rjmp .L81
+ 444               	.L51:
+ 445 008e 40E0      		ldi r20,0
+ 446 0090 BE01      		movw r22,r28
+ 447 0092 6F5F      		subi r22,-1
+ 448 0094 7F4F      		sbci r23,-1
+ 449 0096 0E94 0000 		call decode3outof6
+ 450 009a 8111      		cpse r24,__zero_reg__
+ 451 009c 00C0      		rjmp .L61
+ 452 009e 8981      		ldd r24,Y+1
+ 453 00a0 8093 0000 		sts RXinfo,r24
+ 454 00a4 0E94 0000 		call packetSize
+ 455 00a8 AC01      		movw r20,r24
+ 456 00aa 60E0      		ldi r22,0
+ 457 00ac 80E0      		ldi r24,0
+ 458               	.L81:
+ 459 00ae 0E94 0000 		call byteSize
+ 460 00b2 9093 0000 		sts RXinfo+1+1,r25
+ 461 00b6 8093 0000 		sts RXinfo+1,r24
+ 462 00ba 6091 0000 		lds r22,RXinfo+1
+ 463 00be 7091 0000 		lds r23,RXinfo+1+1
+ 464 00c2 6934      		cpi r22,73
+ 465 00c4 82E0      		ldi r24,2
+ 466 00c6 7807      		cpc r23,r24
+ 467 00c8 00F0      		brlo .+2
+ 468 00ca 00C0      		rjmp .L61
+ 469 00cc 86E0      		ldi r24,lo8(6)
+ 470 00ce 6F3F      		cpi r22,-1
+ 471 00d0 7105      		cpc r23,__zero_reg__
+ 472 00d2 01F0      		breq .+2
+ 473 00d4 00F4      		brsh .L55
+ 474 00d6 0E94 0000 		call cc1100_writeReg
+ 475 00da 60E0      		ldi r22,0
+ 476 00dc 88E0      		ldi r24,lo8(8)
+ 477 00de 0E94 0000 		call cc1100_writeReg
+ 478 00e2 81E0      		ldi r24,lo8(1)
+ 479 00e4 8093 0000 		sts RXinfo+7,r24
+ 480 00e8 00C0      		rjmp .L56
+ 481               	.L55:
+ 482 00ea 0E94 0000 		call cc1100_writeReg
+ 483               	.L56:
+ 484 00ee 8091 0000 		lds r24,RXinfo+5
+ 485 00f2 9091 0000 		lds r25,RXinfo+5+1
+ 486 00f6 0396      		adiw r24,3
+ 487 00f8 9093 0000 		sts RXinfo+5+1,r25
+ 488 00fc 8093 0000 		sts RXinfo+5,r24
+ 489 0100 8091 0000 		lds r24,RXinfo+1
+ 490 0104 9091 0000 		lds r25,RXinfo+1+1
+ 491 0108 0397      		sbiw r24,3
+ 492 010a 9093 0000 		sts RXinfo+3+1,r25
+ 493 010e 8093 0000 		sts RXinfo+3,r24
+ 494 0112 1092 0000 		sts RXinfo+8,__zero_reg__
+ 495 0116 83E0      		ldi r24,lo8(3)
+ 496 0118 8093 0000 		sts RXinfo+11,r24
+ 497 011c 67E0      		ldi r22,lo8(7)
+ 498 011e 0E94 0000 		call cc1100_writeReg
+ 499 0122 00C0      		rjmp .L46
+ 500               	.L50:
+ 501 0124 4B9B      		sbis 0x9,3
+ 502 0126 00C0      		rjmp .L46
+ 503 0128 8091 0000 		lds r24,RXinfo+3
+ 504 012c 9091 0000 		lds r25,RXinfo+3+1
+ 505 0130 8F3F      		cpi r24,-1
+ 506 0132 9105      		cpc r25,__zero_reg__
+ 507 0134 01F0      		breq .+2
+ 508 0136 00F4      		brsh .L57
+ 509 0138 8091 0000 		lds r24,RXinfo+7
+ 510 013c 8111      		cpse r24,__zero_reg__
+ 511 013e 00C0      		rjmp .L57
+ 512 0140 60E0      		ldi r22,0
+ 513 0142 88E0      		ldi r24,lo8(8)
+ 514 0144 0E94 0000 		call cc1100_writeReg
+ 515 0148 81E0      		ldi r24,lo8(1)
+ 516 014a 8093 0000 		sts RXinfo+7,r24
+ 517               	.L57:
+ 518 014e 20E0      		ldi r18,0
+ 519 0150 30E0      		ldi r19,0
+ 520 0152 40E0      		ldi r20,0
+ 521 0154 50E0      		ldi r21,0
+ 522 0156 6FE1      		ldi r22,lo8(31)
+ 523 0158 8091 0000 		lds r24,RXinfo+5
+ 524 015c 9091 0000 		lds r25,RXinfo+5+1
+ 525 0160 0E94 0000 		call halRfReadFifo
+ 526 0164 8091 0000 		lds r24,RXinfo+3
+ 527 0168 9091 0000 		lds r25,RXinfo+3+1
+ 528 016c 4F97      		sbiw r24,31
+ 529 016e 9093 0000 		sts RXinfo+3+1,r25
+ 530 0172 8093 0000 		sts RXinfo+3,r24
+ 531 0176 8091 0000 		lds r24,RXinfo+5
+ 532 017a 9091 0000 		lds r25,RXinfo+5+1
+ 533 017e 4F96      		adiw r24,31
+ 534 0180 9093 0000 		sts RXinfo+5+1,r25
+ 535 0184 8093 0000 		sts RXinfo+5,r24
+ 536               	.L46:
+ 537 0188 4A99      		sbic 0x9,2
+ 538 018a 00C0      		rjmp .L58
+ 539 018c 8091 0000 		lds r24,RXinfo+11
+ 540 0190 8230      		cpi r24,lo8(2)
+ 541 0192 00F4      		brsh .+2
+ 542 0194 00C0      		rjmp .L58
+ 543 0196 1C82      		std Y+4,__zero_reg__
+ 544 0198 1B82      		std Y+3,__zero_reg__
+ 545 019a 9E01      		movw r18,r28
+ 546 019c 2D5F      		subi r18,-3
+ 547 019e 3F4F      		sbci r19,-1
+ 548 01a0 AE01      		movw r20,r28
+ 549 01a2 4C5F      		subi r20,-4
+ 550 01a4 5F4F      		sbci r21,-1
+ 551 01a6 6091 0000 		lds r22,RXinfo+3
+ 552 01aa 8091 0000 		lds r24,RXinfo+5
+ 553 01ae 9091 0000 		lds r25,RXinfo+5+1
+ 554 01b2 0E94 0000 		call halRfReadFifo
+ 555 01b6 81E0      		ldi r24,lo8(1)
+ 556 01b8 8093 0000 		sts RXinfo+9,r24
+ 557 01bc 8091 0000 		lds r24,RXinfo+10
+ 558 01c0 8130      		cpi r24,lo8(1)
+ 559 01c2 01F4      		brne .L59
+ 560 01c4 8091 0000 		lds r24,RXinfo
+ 561 01c8 0E94 0000 		call packetSize
+ 562 01cc AC01      		movw r20,r24
+ 563 01ce 60E0      		ldi r22,lo8(MBpacket)
+ 564 01d0 70E0      		ldi r23,hi8(MBpacket)
+ 565 01d2 80E0      		ldi r24,lo8(MBbytes)
+ 566 01d4 90E0      		ldi r25,hi8(MBbytes)
+ 567 01d6 0E94 0000 		call decodeRXBytesSmode
+ 568 01da 00C0      		rjmp .L60
+ 569               	.L59:
+ 570 01dc 8091 0000 		lds r24,RXinfo
+ 571 01e0 0E94 0000 		call packetSize
+ 572 01e4 AC01      		movw r20,r24
+ 573 01e6 60E0      		ldi r22,lo8(MBpacket)
+ 574 01e8 70E0      		ldi r23,hi8(MBpacket)
+ 575 01ea 80E0      		ldi r24,lo8(MBbytes)
+ 576 01ec 90E0      		ldi r25,hi8(MBbytes)
+ 577 01ee 0E94 0000 		call decodeRXBytesTmode
+ 578               	.L60:
+ 579 01f2 892B      		or r24,r25
+ 580 01f4 01F4      		brne .L61
+ 581 01f6 82E6      		ldi r24,lo8(98)
+ 582 01f8 0E94 0000 		call display_char
+ 583 01fc 10E0      		ldi r17,0
+ 584               	.L62:
+ 585 01fe 8091 0000 		lds r24,MBpacket
+ 586 0202 0E94 0000 		call packetSize
+ 587 0206 212F      		mov r18,r17
+ 588 0208 30E0      		ldi r19,0
+ 589 020a 2817      		cp r18,r24
+ 590 020c 3907      		cpc r19,r25
+ 591 020e 00F4      		brsh .L83
+ 592 0210 F901      		movw r30,r18
+ 593 0212 E050      		subi r30,lo8(-(MBpacket))
+ 594 0214 F040      		sbci r31,hi8(-(MBpacket))
+ 595 0216 8081      		ld r24,Z
+ 596 0218 0E94 0000 		call display_hex2
+ 597 021c 1F5F      		subi r17,lo8(-(1))
+ 598 021e 00C0      		rjmp .L62
+ 599               	.L83:
+ 600 0220 8091 0000 		lds r24,tx_report
+ 601 0224 85FF      		sbrs r24,5
+ 602 0226 00C0      		rjmp .L64
+ 603 0228 8B81      		ldd r24,Y+3
+ 604 022a 0E94 0000 		call display_hex2
+ 605 022e 8C81      		ldd r24,Y+4
+ 606 0230 0E94 0000 		call display_hex2
+ 607               	.L64:
+ 608 0234 0E94 0000 		call display_nl
+ 609               	.L61:
+ 610 0238 1092 0000 		sts RXinfo+11,__zero_reg__
+ 611 023c 00C0      		rjmp .L44
+ 612               	.L58:
+ 613 023e 80E0      		ldi r24,0
+ 614               	.L82:
+ 615 0240 0E94 0000 		call rf_mbus_on
+ 616               	.L44:
+ 617               	/* epilogue start */
+ 618 0244 2496      		adiw r28,4
+ 619 0246 E3E0      		ldi r30, lo8(3)
+ 620 0248 0C94 0000 		jmp __epilogue_restores__ + ((18 - 3) * 2)
+ 622               		.section	.text.rf_mbus_func,"ax",@progbits
+ 623               	.global	rf_mbus_func
+ 625               	rf_mbus_func:
+ 626               	/* prologue: function */
+ 627               	/* frame size = 0 */
+ 628               	/* stack size = 0 */
+ 629               	.L__stack_usage = 0
+ 630 0000 FC01      		movw r30,r24
+ 631 0002 9181      		ldd r25,Z+1
+ 632 0004 9237      		cpi r25,lo8(114)
+ 633 0006 01F4      		brne .L85
+ 634 0008 8281      		ldd r24,Z+2
+ 635 000a 8823      		tst r24
+ 636 000c 01F0      		breq .L86
+ 637 000e 8337      		cpi r24,lo8(115)
+ 638 0010 01F4      		brne .L87
+ 639 0012 62E0      		ldi r22,lo8(2)
+ 640 0014 81E0      		ldi r24,lo8(1)
+ 641 0016 00C0      		rjmp .L99
+ 642               	.L87:
+ 643 0018 8437      		cpi r24,lo8(116)
+ 644 001a 01F4      		brne .L88
+ 645 001c 62E0      		ldi r22,lo8(2)
+ 646 001e 82E0      		ldi r24,lo8(2)
+ 647               	.L99:
+ 648 0020 0E94 0000 		call rf_mbus_init
+ 649 0024 00C0      		rjmp .L86
+ 650               	.L88:
+ 651 0026 60E0      		ldi r22,0
+ 652 0028 80E0      		ldi r24,0
+ 653 002a 00C0      		rjmp .L99
+ 654               	.L85:
+ 655 002c 9337      		cpi r25,lo8(115)
+ 656 002e 01F4      		brne .L86
+ 657 0030 80E0      		ldi r24,lo8(__c.2173)
+ 658 0032 90E0      		ldi r25,hi8(__c.2173)
+ 659 0034 0E94 0000 		call display_string_P
+ 660 0038 0895      		ret
+ 661               	.L86:
+ 662 003a 8091 0000 		lds r24,radio_mode
+ 663 003e 8230      		cpi r24,lo8(2)
+ 664 0040 01F4      		brne .L90
+ 665 0042 8091 0000 		lds r24,mbus_mode
+ 666 0046 8130      		cpi r24,lo8(1)
+ 667 0048 01F0      		breq .L92
+ 668 004a 8230      		cpi r24,lo8(2)
+ 669 004c 01F4      		brne .L101
+ 670 004e 80E0      		ldi r24,lo8(__c.2163)
+ 671 0050 90E0      		ldi r25,hi8(__c.2163)
+ 672 0052 00C0      		rjmp .L100
+ 673               	.L92:
+ 674 0054 80E0      		ldi r24,lo8(__c.2159)
+ 675 0056 90E0      		ldi r25,hi8(__c.2159)
+ 676 0058 00C0      		rjmp .L100
+ 677               	.L101:
+ 678 005a 80E0      		ldi r24,lo8(__c.2166)
+ 679 005c 90E0      		ldi r25,hi8(__c.2166)
+ 680 005e 00C0      		rjmp .L100
+ 681               	.L90:
+ 682 0060 80E0      		ldi r24,lo8(__c.2168)
+ 683 0062 90E0      		ldi r25,hi8(__c.2168)
+ 684               	.L100:
+ 685 0064 0E94 0000 		call display_string_P
+ 686 0068 0E94 0000 		call display_nl
+ 687 006c 0895      		ret
+ 689               		.section	.progmem.data,"a",@progbits
+ 692               	__c.2168:
+ 693 0000 4F46 4600 		.string	"OFF"
+ 696               	__c.2166:
+ 697 0004 4F46 4600 		.string	"OFF"
+ 700               	__c.2163:
+ 701 0008 544D 4F44 		.string	"TMODE"
+ 701      4500 
+ 704               	__c.2159:
+ 705 000e 534D 4F44 		.string	"SMODE"
+ 705      4500 
+ 708               	__c.2173:
+ 709 0014 6E6F 7420 		.string	"not compiled in\r\n"
+ 709      636F 6D70 
+ 709      696C 6564 
+ 709      2069 6E0D 
+ 709      0A00 
+ 710               		.comm	TXinfo,6,1
+ 711               		.comm	RXinfo,12,1
+ 712               	.global	mbus_mode
+ 713               		.section .bss
+ 716               	mbus_mode:
+ 717 0000 00        		.zero	1
+ 718               	.global	radio_mode
+ 721               	radio_mode:
+ 722 0001 00        		.zero	1
+ 723               		.comm	MBbytes,584,1
+ 724               		.comm	MBpacket,291,1
+ 725               		.section	.progmem.data,"a",@progbits
+ 728               	tModeRfConfig:
+ 729 0026 04        		.byte	4
+ 730 0027 54        		.byte	84
+ 731 0028 05        		.byte	5
+ 732 0029 3D        		.byte	61
+ 733 002a 17        		.byte	23
+ 734 002b 00        		.byte	0
+ 735 002c 00        		.byte	0
+ 736 002d 06        		.byte	6
+ 737 002e 02        		.byte	2
+ 738 002f 00        		.byte	0
+ 739 0030 0B        		.byte	11
+ 740 0031 08        		.byte	8
+ 741 0032 0C        		.byte	12
+ 742 0033 00        		.byte	0
+ 743 0034 0D        		.byte	13
+ 744 0035 21        		.byte	33
+ 745 0036 0E        		.byte	14
+ 746 0037 6B        		.byte	107
+ 747 0038 0F        		.byte	15
+ 748 0039 D0        		.byte	-48
+ 749 003a 10        		.byte	16
+ 750 003b 5C        		.byte	92
+ 751 003c 11        		.byte	17
+ 752 003d 04        		.byte	4
+ 753 003e 12        		.byte	18
+ 754 003f 06        		.byte	6
+ 755 0040 13        		.byte	19
+ 756 0041 22        		.byte	34
+ 757 0042 14        		.byte	20
+ 758 0043 F8        		.byte	-8
+ 759 0044 0A        		.byte	10
+ 760 0045 00        		.byte	0
+ 761 0046 15        		.byte	21
+ 762 0047 44        		.byte	68
+ 763 0048 21        		.byte	33
+ 764 0049 B6        		.byte	-74
+ 765 004a 22        		.byte	34
+ 766 004b 10        		.byte	16
+ 767 004c 18        		.byte	24
+ 768 004d 18        		.byte	24
+ 769 004e 19        		.byte	25
+ 770 004f 2E        		.byte	46
+ 771 0050 1A        		.byte	26
+ 772 0051 BF        		.byte	-65
+ 773 0052 1B        		.byte	27
+ 774 0053 43        		.byte	67
+ 775 0054 1C        		.byte	28
+ 776 0055 09        		.byte	9
+ 777 0056 1D        		.byte	29
+ 778 0057 B5        		.byte	-75
+ 779 0058 23        		.byte	35
+ 780 0059 EA        		.byte	-22
+ 781 005a 24        		.byte	36
+ 782 005b 2A        		.byte	42
+ 783 005c 25        		.byte	37
+ 784 005d 00        		.byte	0
+ 785 005e 26        		.byte	38
+ 786 005f 1F        		.byte	31
+ 787 0060 29        		.byte	41
+ 788 0061 59        		.byte	89
+ 789 0062 2C        		.byte	44
+ 790 0063 81        		.byte	-127
+ 791 0064 2D        		.byte	45
+ 792 0065 35        		.byte	53
+ 793 0066 2E        		.byte	46
+ 794 0067 09        		.byte	9
+ 795 0068 07        		.byte	7
+ 796 0069 04        		.byte	4
+ 797 006a 08        		.byte	8
+ 798 006b 00        		.byte	0
+ 799 006c 09        		.byte	9
+ 800 006d 00        		.byte	0
+ 801 006e 06        		.byte	6
+ 802 006f FF        		.byte	-1
+ 803 0070 3E        		.byte	62
+ 804 0071 C2        		.byte	-62
+ 805 0072 FF        		.byte	-1
+ 808               	sModeRfConfig:
+ 809 0073 04        		.byte	4
+ 810 0074 76        		.byte	118
+ 811 0075 05        		.byte	5
+ 812 0076 96        		.byte	-106
+ 813 0077 17        		.byte	23
+ 814 0078 00        		.byte	0
+ 815 0079 00        		.byte	0
+ 816 007a 06        		.byte	6
+ 817 007b 02        		.byte	2
+ 818 007c 00        		.byte	0
+ 819 007d 0B        		.byte	11
+ 820 007e 08        		.byte	8
+ 821 007f 0C        		.byte	12
+ 822 0080 00        		.byte	0
+ 823 0081 0D        		.byte	13
+ 824 0082 21        		.byte	33
+ 825 0083 0E        		.byte	14
+ 826 0084 65        		.byte	101
+ 827 0085 0F        		.byte	15
+ 828 0086 6A        		.byte	106
+ 829 0087 10        		.byte	16
+ 830 0088 6A        		.byte	106
+ 831 0089 11        		.byte	17
+ 832 008a 4A        		.byte	74
+ 833 008b 12        		.byte	18
+ 834 008c 06        		.byte	6
+ 835 008d 13        		.byte	19
+ 836 008e 22        		.byte	34
+ 837 008f 14        		.byte	20
+ 838 0090 F8        		.byte	-8
+ 839 0091 0A        		.byte	10
+ 840 0092 00        		.byte	0
+ 841 0093 15        		.byte	21
+ 842 0094 47        		.byte	71
+ 843 0095 21        		.byte	33
+ 844 0096 B6        		.byte	-74
+ 845 0097 22        		.byte	34
+ 846 0098 10        		.byte	16
+ 847 0099 18        		.byte	24
+ 848 009a 18        		.byte	24
+ 849 009b 19        		.byte	25
+ 850 009c 2E        		.byte	46
+ 851 009d 1A        		.byte	26
+ 852 009e 6D        		.byte	109
+ 853 009f 1B        		.byte	27
+ 854 00a0 04        		.byte	4
+ 855 00a1 1C        		.byte	28
+ 856 00a2 09        		.byte	9
+ 857 00a3 1D        		.byte	29
+ 858 00a4 B2        		.byte	-78
+ 859 00a5 23        		.byte	35
+ 860 00a6 EA        		.byte	-22
+ 861 00a7 24        		.byte	36
+ 862 00a8 2A        		.byte	42
+ 863 00a9 25        		.byte	37
+ 864 00aa 00        		.byte	0
+ 865 00ab 26        		.byte	38
+ 866 00ac 1F        		.byte	31
+ 867 00ad 29        		.byte	41
+ 868 00ae 59        		.byte	89
+ 869 00af 2C        		.byte	44
+ 870 00b0 81        		.byte	-127
+ 871 00b1 2D        		.byte	45
+ 872 00b2 35        		.byte	53
+ 873 00b3 2E        		.byte	46
+ 874 00b4 09        		.byte	9
+ 875 00b5 07        		.byte	7
+ 876 00b6 04        		.byte	4
+ 877 00b7 08        		.byte	8
+ 878 00b8 00        		.byte	0
+ 879 00b9 09        		.byte	9
+ 880 00ba 00        		.byte	0
+ 881 00bb 06        		.byte	6
+ 882 00bc FF        		.byte	-1
+ 883 00bd 3E        		.byte	62
+ 884 00be C2        		.byte	-62
+ 885 00bf FF        		.byte	-1
+ 886               		.ident	"GCC: (GNU) 5.4.0"
+ 887               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 rf_mbus.c
+     /tmp/ccUCsW24.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccUCsW24.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccUCsW24.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccUCsW24.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccUCsW24.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccUCsW24.s:9      .text.halRfReadFifo:0000000000000000 halRfReadFifo
+     /tmp/ccUCsW24.s:67     .text.rf_mbus_on:0000000000000000 rf_mbus_on
+                            *COM*:000000000000000c RXinfo
+                            *COM*:0000000000000248 MBbytes
+     /tmp/ccUCsW24.s:716    .bss:0000000000000000 mbus_mode
+     /tmp/ccUCsW24.s:134    .text.rf_mbus_init:0000000000000000 rf_mbus_init
+     /tmp/ccUCsW24.s:721    .bss:0000000000000001 radio_mode
+     /tmp/ccUCsW24.s:728    .progmem.data:0000000000000026 tModeRfConfig
+     /tmp/ccUCsW24.s:808    .progmem.data:0000000000000073 sModeRfConfig
+                            *COM*:0000000000000006 TXinfo
+     /tmp/ccUCsW24.s:325    .text.halRfWriteFifo:0000000000000000 halRfWriteFifo
+     /tmp/ccUCsW24.s:366    .text.halRfGetTxStatus:0000000000000000 halRfGetTxStatus
+     /tmp/ccUCsW24.s:378    .text.rf_mbus_task:0000000000000000 rf_mbus_task
+                            *COM*:0000000000000123 MBpacket
+     /tmp/ccUCsW24.s:625    .text.rf_mbus_func:0000000000000000 rf_mbus_func
+     /tmp/ccUCsW24.s:708    .progmem.data:0000000000000014 __c.2173
+     /tmp/ccUCsW24.s:700    .progmem.data:0000000000000008 __c.2163
+     /tmp/ccUCsW24.s:704    .progmem.data:000000000000000e __c.2159
+     /tmp/ccUCsW24.s:696    .progmem.data:0000000000000004 __c.2166
+     /tmp/ccUCsW24.s:692    .progmem.data:0000000000000000 __c.2168
+
+UNDEFINED SYMBOLS
+__prologue_saves__
+cc1100_sendbyte
+__epilogue_restores__
+ccStrobe
+cc1100_readReg
+cc1100_writeReg
+my_delay_us
+my_delay_ms
+manchDecode
+packetSize
+decode3outof6
+byteSize
+decodeRXBytesSmode
+decodeRXBytesTmode
+display_char
+display_hex2
+tx_report
+display_nl
+display_string_P
+__do_clear_bss
