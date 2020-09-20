@@ -59,36 +59,38 @@
 #  warning "for the m32u2 add __AVR_ATmega32U2__ for cpu types on prescale block"
 #endif
 
-#define PB0 PORTB0
 #define PB1 PORTB1
 #define PB2 PORTB2
 #define PB3 PORTB3
-#define PB6 PORTB6
-#define PD2 PORTD2
-#define PD3 PORTD3
+#define PD6 PORTD6
+#define PE7 PORTE7
+#define PF7 PORTF7
 
 #define SPI_PORT		PORTB
 #define SPI_DDR			DDRB
-#define SPI_SS			PB0
+#define SS_DDR          DDRD
+#define SPI_SS			PD6
 #define SPI_MISO		PB3
 #define SPI_MOSI		PB2
 #define SPI_SCLK		PB1
 
-#define CC1100_CS_DDR		SPI_DDR
-#define CC1100_CS_PORT        SPI_PORT
+#define CC1100_CS_DDR		SS_DDR
+#define CC1100_CS_PORT        PORTD
 #define CC1100_CS_PIN		SPI_SS
-#define CC1100_OUT_DDR        DDRD
-#define CC1100_OUT_PORT       PORTD
-#define CC1100_OUT_PIN        PD3
-#define CC1100_OUT_IN         PIND
-#define CC1100_IN_DDR		DDRD
-#define CC1100_IN_PORT        PIND
-#define CC1100_IN_PIN         PD2
-#define CC1100_IN_IN          PIND
-#define CC1100_INT		INT2
-#define CC1100_INTVECT        INT2_vect
-#define CC1100_ISC		ISC20
-#define CC1100_EICR           EICRA
+#define CC1100_OUT_DDR        DDRF
+#define CC1100_OUT_PORT       PORTF
+#define CC1100_OUT_PIN        PF7
+#define CC1100_OUT_IN         PINF
+#define CCTEMP_MUX            CC1100_OUT_PIN
+
+#define CC1100_IN_DDR		DDRE
+#define CC1100_IN_PORT        PINE
+#define CC1100_IN_PIN         PE6
+#define CC1100_INT		INT6
+#define CC1100_INTVECT        INT6_vect
+#define CC1100_ISC		ISC60
+#define CC1100_EICR           EICRB
+
 #undef LED_DDR
 #undef LED_PORT
 #undef LED_PIN
@@ -96,11 +98,19 @@
 
 #define CUL_HW_REVISION "CUL_V3"
 
-#define MARK433_PORT            PORTB
-#define MARK433_PIN             PINB
-#define MARK433_BIT             6
-#define MARK915_PORT            PORTB
-#define MARK915_PIN             PINB
-#define MARK915_BIT             5
+#undef MARK433_PORT            //PORTB
+#undef MARK433_PIN             //PINB
+#undef MARK433_BIT             //6
+#undef MARK915_PORT            //PORTB
+#undef MARK915_PIN             //PINB
+#undef MARK915_BIT             //5
+
+#ifndef SET_BIT
+#define SET_BIT(PORT, BITNUM) ((PORT) |= (1<<(BITNUM)))
+#endif
+#ifndef CLEAR_BIT
+#define CLEAR_BIT(PORT, BITNUM) ((PORT) &= ~(1<<(BITNUM)))
+#endif
+#define TOGGLE_BIT(PORT, BITNUM) ((PORT) ^= (1<<(BITNUM)))
 
 #endif // __BOARD_H__
