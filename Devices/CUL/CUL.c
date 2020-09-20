@@ -770,12 +770,14 @@ main(void)
       changeled = 0;
                      }
 
+  if (PINB & (1<<PB0)) {
   if (newbllevel != bllevel  && 0 <= newbllevel && newbllevel < 32) {
 
   if (newbllevel < bllevel) {bllevel--;}   else {bllevel++;}
 
   write_backlight(0b01011000);
   write_backlight(0b00011111 & bllevel);
+  }
   }
   
 
