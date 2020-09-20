@@ -68,27 +68,27 @@
 
 #define SPI_PORT		PORTB
 #define SPI_DDR			DDRB
-#define SS_DDR          DDRD
-#define SPI_SS			PD6
+#define SPI_SS			PB0
 #define SPI_MISO		PB3
 #define SPI_MOSI		PB2
 #define SPI_SCLK		PB1
 
-#define CC1100_CS_DDR		SS_DDR
-#define CC1100_CS_PORT        PORTD
-#define CC1100_CS_PIN		SPI_SS
+#define CC1100_CS_DDR		  SPI_DDR
+#define CC1100_CS_PORT        SPI_PORT
+#define CC1100_CS_PIN		  SPI_SS
+
 #define CC1100_OUT_DDR        DDRF
 #define CC1100_OUT_PORT       PORTF
 #define CC1100_OUT_PIN        PF7
 #define CC1100_OUT_IN         PINF
 #define CCTEMP_MUX            CC1100_OUT_PIN
 
-#define CC1100_IN_DDR		DDRE
+#define CC1100_IN_DDR		  DDRE
 #define CC1100_IN_PORT        PINE
 #define CC1100_IN_PIN         PE6
-#define CC1100_INT		INT6
+#define CC1100_INT		      INT6
 #define CC1100_INTVECT        INT6_vect
-#define CC1100_ISC		ISC60
+#define CC1100_ISC		      ISC60
 #define CC1100_EICR           EICRB
 
 #undef LED_DDR
