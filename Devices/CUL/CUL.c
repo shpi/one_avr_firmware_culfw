@@ -124,7 +124,8 @@ void init_backlight(void) { // init AL3050 single wire dimming
 }
 
 void write_lcd(uint16_t data, uint8_t count) { //  write routine for LCD setup
-  PORTD &= ~_BV(PD4);
+cli();
+PORTD &= ~_BV(PD4);
 
   do {
     PORTB &= ~_BV(PB2);
@@ -138,7 +139,7 @@ void write_lcd(uint16_t data, uint8_t count) { //  write routine for LCD setup
   PORTB &= ~_BV(PB2);
   PORTD |= _BV(PD4);
   _delay_us(LCD_WRITE_DELAY);
-
+sei();
 }
 
 void setup_lcd(void){
